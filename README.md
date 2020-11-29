@@ -1,29 +1,18 @@
-# README #
+# Prototype of Sensor Architecture #
 
-This README would normally document whatever steps are necessary to get your application up and running.
+This product will create sensors to monitor information (setup by user) during the runtime, give alert when meet the condition given by user.
 
-### What is this repository for? ###
+Powered by ***Akka*** to achieve all monitors and alerts are message driven. This repo is only prototype which means it creates a mocked process and integrate sensors to continue supervise the process
 
-* Quick summary
-* Version
-* [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
+### Enviornments ###
 
-### How do I get set up? ###
+* Akka + maven + Java
+* 1.0.snapshot
+
+### Setup ###
 
 * Summary of set up
-* Configuration
-* Dependencies
-* Database configuration
-* How to run tests
-* Deployment instructions
-
-### Contribution guidelines ###
-
-* Writing tests
-* Code review
-* Other guidelines
 
 ### Who do I talk to? ###
 
-* Repo owner or admin
-* Other community or team contact
+* Owner: [Qixiang Zhou](https://github.com/JIMsZHOU)
