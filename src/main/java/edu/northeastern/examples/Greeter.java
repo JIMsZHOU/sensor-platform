@@ -1,4 +1,4 @@
-package edu.northeastern;
+package edu.northeastern.examples;
 
 import akka.actor.typed.ActorRef;
 import akka.actor.typed.Behavior;
