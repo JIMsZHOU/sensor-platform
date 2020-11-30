@@ -14,6 +14,13 @@ import java.util.Optional;
 
 /**
  * Created by Jim Z on 11/29/20 18:31
+ *
+ * Actor Manager will store useful actor references.
+ * Current include below:
+ * 1. typed ActorSystem
+ * 2. Akka Quartz Scheduler
+ * 3. Sensor Manager Actor
+ * 4. Alert Actor
  */
 public class ActorManager {
 

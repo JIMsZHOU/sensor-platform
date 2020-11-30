@@ -14,6 +14,13 @@ import java.util.Map;
 
 /**
  * Created by Jim Z on 11/29/20 15:40
+ *
+ * Sensor manager will responsible to manager sensors
+ * 1. register sensor
+ * 2. pass messages to sensor
+ * 3. stop sensor
+ *
+ * TODO: this may cause bottleneck issue, need to consider better approach
  */
 public class SensorManager extends AbstractBehavior<SensorManager.SensorManagerCommand> {
     /*
