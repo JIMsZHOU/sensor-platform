@@ -1,33 +1,32 @@
 package edu.northeastern;
 
 import akka.actor.typed.ActorSystem;
-import edu.northeastern.examples.GreeterMain;
-import edu.northeastern.process.serivce.PaymentService;
-
-import java.io.IOException;
+import com.typesafe.akka.extension.quartz.QuartzSchedulerExtension;
+import edu.northeastern.base.ActorManager;
+import edu.northeastern.base.SensorManager;
+import edu.northeastern.process.sensors.DemoSensor;
 
 public class ProgramEntry {
   public static void main(String[] args) {
-    PaymentService ps = new PaymentService();
-    ps.makeAPayment("#001");
-    System.out.println("Finished #001 payment request");
-//    /*
-//     Those are the code generate by the Akka Starter project
-//     */
-//    //#actor-system
-//    final ActorSystem<GreeterMain.SayHello> greeterMain = ActorSystem.create(GreeterMain.create(), "helloakka");
-//    //#actor-system
-//
-//    //#main-send-messages
-//    greeterMain.tell(new GreeterMain.SayHello("Charles"));
-//    //#main-send-messages
-//
-//    try {
-//      System.out.println(">>> Press ENTER to exit <<<");
-//      System.in.read();
-//    } catch (IOException ignored) {
-//    } finally {
-//      greeterMain.terminate();
-//    }
+    ActorSystem<Void> system = ActorSystem.create(ActorManager.create(), "actorManager");
+    while (!ActorManager.isReady()) {
+      try {
+        Thread.sleep(1000);
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+      }
+    }
+    // create a new sensor at Main process
+    // Here use Demo Sensor you can inspect the code inside DemoSensor.class
+    ActorManager.getSensorManager().tell(new SensorManager.Add("demo", DemoSensor.create()));
+
+    // send sensor message within the process
+    for (int i = 0; i < 11; i++) {
+      ActorManager.getSensorManager().tell(new SensorManager.Send("demo", new DemoSensor.Msg()));
+    }
+
+    // At the end of the process, send message to stop process
+    ActorManager.getSensorManager().tell(new SensorManager.Stop("demo"));
+    system.terminate();
   }
 }
