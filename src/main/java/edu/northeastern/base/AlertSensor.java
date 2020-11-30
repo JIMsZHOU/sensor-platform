@@ -8,6 +8,9 @@ import akka.actor.typed.javadsl.Receive;
 
 /**
  * Created by Jim Z on 11/29/20 15:55
+ *
+ * Alert Actor is design to receive alert information from sensors
+ * and give proper actions to handle the alert
  */
 public class AlertSensor extends AbstractBehavior<AlertSensor.Alert> {
     // the message alert sensor (actor) can receive
