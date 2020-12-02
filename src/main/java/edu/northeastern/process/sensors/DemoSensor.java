@@ -2,10 +2,13 @@ package edu.northeastern.process.sensors;
 
 import akka.actor.typed.Behavior;
 import akka.actor.typed.javadsl.ActorContext;
+import akka.actor.typed.javadsl.Adapter;
 import akka.actor.typed.javadsl.Behaviors;
 import akka.actor.typed.javadsl.Receive;
 import edu.northeastern.base.ActorManager;
 import edu.northeastern.base.AlertSensor;
+import scala.Option;
+import java.util.TimeZone;
 
 /**
  * Created by Jim Z on 11/29/20 18:40
@@ -21,6 +24,9 @@ import edu.northeastern.base.AlertSensor;
  */
 public class DemoSensor extends AbstractSensor {
 
+    public static final class Msg implements SensorCommand { }
+    public static final class Schedule implements SensorCommand { }
+
     private int cnt = 0;
 
     private DemoSensor(ActorContext<SensorCommand> context) {
@@ -30,7 +36,8 @@ public class DemoSensor extends AbstractSensor {
     @Override
     public Receive<SensorCommand> createReceive() {
         return newReceiveBuilder()
-                .onMessage(Msg.class, this::onMessage)
+                .onMessage(Schedule.class, this::onSchdule)
+                .onMessage(Msg.class, this::onUpdate)
                 .build();
     }
 
@@ -38,13 +45,29 @@ public class DemoSensor extends AbstractSensor {
         return Behaviors.setup(DemoSensor::new);
     }
 
-    public static final class Msg implements SensorCommand { }
-
-    private Behavior<SensorCommand> onMessage(Msg msg) {
+    private Behavior<SensorCommand> onUpdate(Msg msg) {
         cnt++;
         if (cnt > 10) {
             ActorManager.getAlertSensor().tell(new AlertSensor.Alert("Demo sensor received 10+ times message"));
         }
         return this;
+    }
+
+    private Behavior<SensorCommand> onSchdule(Schedule schedule) {
+        createScheduleTask();
+        return this;
+    }
+
+    // TODO: extract it to parent class
+    private void createScheduleTask() {
+        ActorManager.getScheduler().createJobSchedule(
+                "demo scheduler",
+                Adapter.toClassic(ActorManager.getAlertSensor()),
+                new AlertSensor.Alert("schduled message"),
+                Option.apply("Demo"),
+                "*/1 * * ? * *",
+                Option.empty(),
+                TimeZone.getDefault()
+        );
     }
 }

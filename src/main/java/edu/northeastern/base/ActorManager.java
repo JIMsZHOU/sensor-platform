@@ -49,10 +49,10 @@ public class ActorManager {
     public static Behavior<Void> create() {
         return Behaviors.setup(
                 context -> {
-                    SENSORMANAGER = context.spawn(SensorManager.create(), "sensorManager");
-                    ALERTSENSOR = context.spawn(AlertSensor.create(), "alertSensor");
                     SYSTEM = context.getSystem();
                     SCHEDULER = QuartzSchedulerExtension.get(SYSTEM.classicSystem());
+                    SENSORMANAGER = context.spawn(SensorManager.create(), "sensorManager");
+                    ALERTSENSOR = context.spawn(AlertSensor.create(), "alertSensor");
                     isReady = true;
                     context.getLog().info("Actor Manager Setup Complete");
                     return Behaviors.receive(Void.class)
