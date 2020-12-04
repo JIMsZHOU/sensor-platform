@@ -1,6 +1,5 @@
-package edu.northeastern.process.sensors;
+package edu.northeastern.base.sensor;
 
-import akka.actor.typed.Behavior;
 import akka.actor.typed.javadsl.AbstractBehavior;
 import akka.actor.typed.javadsl.ActorContext;
 import akka.actor.typed.javadsl.Receive;

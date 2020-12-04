@@ -1,4 +1,4 @@
-package edu.northeastern.base;
+package edu.northeastern.base.manager;
 
 import akka.actor.typed.Behavior;
 import akka.actor.typed.javadsl.AbstractBehavior;

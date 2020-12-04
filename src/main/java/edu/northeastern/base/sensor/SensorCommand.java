@@ -1,4 +1,4 @@
-package edu.northeastern.process.sensors;
+package edu.northeastern.base.sensor;
 
 /**
  * Created by Jim Z on 11/29/20 20:03
