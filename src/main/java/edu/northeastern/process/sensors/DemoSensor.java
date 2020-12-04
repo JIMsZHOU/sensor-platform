@@ -2,72 +2,80 @@ package edu.northeastern.process.sensors;
 
 import akka.actor.typed.Behavior;
 import akka.actor.typed.javadsl.ActorContext;
-import akka.actor.typed.javadsl.Adapter;
 import akka.actor.typed.javadsl.Behaviors;
 import akka.actor.typed.javadsl.Receive;
-import edu.northeastern.base.ActorManager;
-import edu.northeastern.base.AlertSensor;
-import scala.Option;
-import java.util.TimeZone;
+import edu.northeastern.base.sensor.AbstractSensor;
+import edu.northeastern.base.sensor.SensorCommand;
+import edu.northeastern.process.beans.DemoEntity;
+
+import java.util.Optional;
 
 /**
- * Created by Jim Z on 11/29/20 18:40
- *
- * This is the Demo Sensor
- *
- * Implementations required by user:
- *
- * 1. Give default constructor or enrich by user
- * 2. define Message that sensor will receive (should implement top type SensorCommand interface)
- * 3. define actions when receive message
- * 4. Inside actions should define the workflow when meet conditions
+ * Created by Jim Z on 12/4/20 16:37
  */
 public class DemoSensor extends AbstractSensor {
 
-    public static final class Msg implements SensorCommand { }
-    public static final class Schedule implements SensorCommand { }
+    /*
+     Messages
+     */
+    public static final class Number implements SensorCommand {
+        public String info;
 
-    private int cnt = 0;
-
-    private DemoSensor(ActorContext<SensorCommand> context) {
-        super(context);
+        public Number(String info) {
+            this.info = info;
+        }
+    }
+    public static final class Query implements SensorCommand {
+        public DemoEntity entity;
+        public Query(DemoEntity entity) {
+            this.entity = entity;
+        }
+    }
+    public static final class Log implements SensorCommand {
+        public String line;
+        public Log(String line) {
+            this.line = line;
+        }
     }
 
-    @Override
-    public Receive<SensorCommand> createReceive() {
-        return newReceiveBuilder()
-                .onMessage(Schedule.class, this::onSchdule)
-                .onMessage(Msg.class, this::onUpdate)
-                .build();
+    public DemoSensor(ActorContext<SensorCommand> context) {
+        super(context);
     }
 
     public static Behavior<SensorCommand> create() {
         return Behaviors.setup(DemoSensor::new);
     }
 
-    private Behavior<SensorCommand> onUpdate(Msg msg) {
-        cnt++;
-        if (cnt > 10) {
-            ActorManager.getAlertSensor().tell(new AlertSensor.Alert("Demo sensor received 10+ times message"));
+    @Override
+    public Receive<SensorCommand> createReceive() {
+        return newReceiveBuilder()
+                .onMessage(Number.class, this::onNumber)
+                .onMessage(Query.class, this::onQuery)
+                .onMessage(Log.class, this::onLog)
+                .build();
+    }
+
+    /*
+     Message handler
+     */
+    private Behavior<SensorCommand> onNumber(Number number) {
+        getContext().getLog().info(number.info);
+        return this;
+    }
+
+    private Behavior<SensorCommand> onQuery(Query query) {
+        if (query.entity.isSuccess()) {
+            getContext().getLog().warn("database table update success");
+        } else {
+            getContext().getLog().info("scheduled check database table");
         }
         return this;
     }
 
-    private Behavior<SensorCommand> onSchdule(Schedule schedule) {
-        createScheduleTask();
+    private Behavior<SensorCommand> onLog(Log log) {
+        if (log.line.contains("**88**")) {
+            getContext().getLog().error("");
+        }
         return this;
-    }
-
-    // TODO: extract it to parent class
-    private void createScheduleTask() {
-        ActorManager.getScheduler().createJobSchedule(
-                "demo scheduler",
-                Adapter.toClassic(ActorManager.getAlertSensor()),
-                new AlertSensor.Alert("schduled message"),
-                Option.apply("Demo"),
-                "*/1 * * ? * *",
-                Option.empty(),
-                TimeZone.getDefault()
-        );
     }
 }

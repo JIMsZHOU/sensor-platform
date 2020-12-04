@@ -1,16 +1,11 @@
-package edu.northeastern.base;
+package edu.northeastern.base.manager;
 
-import akka.actor.AbstractActor;
-import akka.actor.Scheduler;
 import akka.actor.typed.ActorSystem;
 import akka.actor.typed.ActorRef;
 import akka.actor.typed.Behavior;
 import akka.actor.typed.Terminated;
-import akka.actor.typed.javadsl.ActorContext;
 import akka.actor.typed.javadsl.Behaviors;
 import com.typesafe.akka.extension.quartz.QuartzSchedulerExtension;
-
-import java.util.Optional;
 
 /**
  * Created by Jim Z on 11/29/20 18:31
@@ -22,8 +17,7 @@ import java.util.Optional;
  * 3. Sensor Manager Actor
  * 4. Alert Actor
  */
-public class ActorManager {
-
+public final class ActorManager {
     private static ActorSystem SYSTEM;
     private static QuartzSchedulerExtension SCHEDULER;
     private static ActorRef<SensorManager.SensorManagerCommand> SENSORMANAGER;

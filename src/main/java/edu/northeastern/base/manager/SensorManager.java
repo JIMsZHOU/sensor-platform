@@ -1,16 +1,15 @@
-package edu.northeastern.base;
+package edu.northeastern.base.manager;
 
-import akka.actor.Terminated;
 import akka.actor.typed.ActorRef;
 import akka.actor.typed.Behavior;
-import akka.actor.typed.javadsl.AbstractBehavior;
-import akka.actor.typed.javadsl.ActorContext;
-import akka.actor.typed.javadsl.Behaviors;
-import akka.actor.typed.javadsl.Receive;
-import edu.northeastern.process.sensors.SensorCommand;
+import akka.actor.typed.javadsl.*;
+import edu.northeastern.base.sensor.SensorCommand;
+import scala.Option;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TimeZone;
 
 /**
  * Created by Jim Z on 11/29/20 15:40
@@ -22,7 +21,7 @@ import java.util.Map;
  *
  * TODO: this may cause bottleneck issue, need to consider better approach
  */
-public class SensorManager extends AbstractBehavior<SensorManager.SensorManagerCommand> {
+public final class SensorManager extends AbstractBehavior<SensorManager.SensorManagerCommand> {
     /*
         All messages that Sensor Manager can receive
         SensorManagerCommand        : interface for polymorphism
@@ -55,6 +54,25 @@ public class SensorManager extends AbstractBehavior<SensorManager.SensorManagerC
             this.msg = msg;
         }
     }
+    public static final class Schedule implements SensorManagerCommand {
+        public String name;
+        public String key;
+        public SensorCommand msg;
+        public String description;
+        public String cronExpression;
+        public String calendar;
+        public TimeZone timezone;
+
+        public Schedule(String name, String key, SensorCommand msg, String description, String cronExpression, String calendar, TimeZone timezone) {
+            this.name = name;
+            this.key = key;
+            this.msg = msg;
+            this.description = description;
+            this.cronExpression = cronExpression;
+            this.calendar = calendar;
+            this.timezone = timezone;
+        }
+    }
 
     /*
         Define all messages reaction
@@ -65,6 +83,7 @@ public class SensorManager extends AbstractBehavior<SensorManager.SensorManagerC
                 .onMessage(Add.class, this::onAdd)
                 .onMessage(Stop.class, this::onStop)
                 .onMessage(Send.class, this::onSend)
+                .onMessage(Schedule.class, this::onSchedule)
                 .build();
     }
 
@@ -87,6 +106,19 @@ public class SensorManager extends AbstractBehavior<SensorManager.SensorManagerC
         return this;
     }
 
+    private Behavior<SensorManagerCommand> onSchedule(Schedule schedule) {
+        createScheduledTask(
+                schedule.name,
+                schedule.key,
+                schedule.msg,
+                schedule.description,
+                schedule.cronExpression,
+                schedule.calendar,
+                schedule.timezone
+        );
+        return this;
+    }
+
     /*
         Data inside the sensor manager
      */
@@ -99,5 +131,17 @@ public class SensorManager extends AbstractBehavior<SensorManager.SensorManagerC
 
     public static Behavior<SensorManagerCommand> create() {
         return Behaviors.setup(SensorManager::new);
+    }
+
+    private void createScheduledTask(String name, String key, SensorCommand msg, String description, String cronExpression, String calendar, TimeZone timezone) {
+        ActorManager.getScheduler().createJobSchedule(
+                name,
+                Adapter.toClassic(map.get(key)),
+                msg,
+                Option.apply(description),
+                cronExpression,
+                Option.apply(calendar),
+                timezone
+        );
     }
 }
