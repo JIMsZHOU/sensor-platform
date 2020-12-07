@@ -14,8 +14,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class ProgramEntry {
 
   public static void main(String[] args) throws InterruptedException {
-    SpringApplication.run(ProgramEntry.class, args);
     ActorSystem<Void> system = ActorSystem.create(ActorManager.create(), "actorManager");
+    SpringApplication.run(ProgramEntry.class, args);
 //    while (!ActorManager.isReady()) {
 //      Thread.sleep(1000);
 //    }
