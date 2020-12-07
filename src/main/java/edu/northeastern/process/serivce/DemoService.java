@@ -1,18 +1,18 @@
 package edu.northeastern.process.serivce;
 
-import akka.actor.typed.javadsl.Adapter;
 import edu.northeastern.base.manager.ActorManager;
 import edu.northeastern.base.manager.SensorManager;
 import edu.northeastern.process.beans.DemoEntity;
 import edu.northeastern.process.dao.DemoRepo;
 import edu.northeastern.process.sensors.DemoSensor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import scala.None;
 
 import java.util.Random;
 import java.util.TimeZone;
-import java.util.logging.Logger;
 
 /**
  * Created by Jim Z on 12/3/20 21:09
@@ -23,7 +23,10 @@ public class DemoService {
     @Autowired
     DemoRepo demoRepo;
 
-    private Logger logger = Logger.getLogger(String.valueOf(DemoService.class));
+    @Value("${logging.file.name}")
+    private String logfile;
+
+    private static final Logger logger = LoggerFactory.getLogger(DemoService.class);
 
     public void startProcess() {
 
@@ -93,7 +96,7 @@ public class DemoService {
 
     private void listenTable() {
         ActorManager.getSensorManager().tell(new SensorManager.Schedule(
-                "database table listener",
+                "databasedemo",
                 "demo",
                 new DemoSensor.Query(demoRepo.findByEmail("test")),
                 "do database query every 10 secs",
@@ -104,7 +107,15 @@ public class DemoService {
     }
 
     private void listenLog() {
-        // TODO:
+        ActorManager.getSensorManager().tell(new SensorManager.Schedule(
+                "logdemo",
+                "demo",
+                new DemoSensor.Log(logfile),
+                "Run bash command to grep output from logfile",
+                "*/1 * * ? * *",
+                null,
+                TimeZone.getDefault()
+        ));
     }
 
     private void initSensor(String key) {
