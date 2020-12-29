@@ -36,7 +36,7 @@ public class AlertSensor extends AbstractBehavior<AlertSensor.Alert> {
     }
 
     private Behavior<Alert> onAlert(Alert alert) {
-        getContext().getLog().warn("This is the alert info:" + alert.info);
+        getContext().getLog().warn("[alert]  " + alert.info);
         return this;
     }
 }

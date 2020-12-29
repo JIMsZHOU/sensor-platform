@@ -15,6 +15,9 @@ public class ProgramEntry {
 
   public static void main(String[] args) throws InterruptedException {
     ActorSystem<Void> system = ActorSystem.create(ActorManager.create(), "actorManager");
+    while (!ActorManager.isReady()) {
+      Thread.sleep(1000);
+    }
     SpringApplication.run(ProgramEntry.class, args);
 //    while (!ActorManager.isReady()) {
 //      Thread.sleep(1000);

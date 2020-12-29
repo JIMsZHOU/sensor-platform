@@ -6,7 +6,6 @@ import akka.actor.typed.javadsl.*;
 import edu.northeastern.base.sensor.SensorCommand;
 import scala.Option;
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TimeZone;
@@ -28,7 +27,7 @@ public final class SensorManager extends AbstractBehavior<SensorManager.SensorMa
         Add                         : register a sensor to manager
         Stop                        : stop a sensor when process fulfilled
      */
-    interface SensorManagerCommand {}
+    public interface SensorManagerCommand { }
 
     public static final class Add implements SensorManagerCommand {
         public final String key;
@@ -74,6 +73,14 @@ public final class SensorManager extends AbstractBehavior<SensorManager.SensorMa
         }
     }
 
+    public static final class CancelSchedule implements SensorManagerCommand {
+        public String key;
+
+        public CancelSchedule(String key) {
+            this.key = key;
+        }
+    }
+
     /*
         Define all messages reaction
      */
@@ -84,6 +91,7 @@ public final class SensorManager extends AbstractBehavior<SensorManager.SensorMa
                 .onMessage(Stop.class, this::onStop)
                 .onMessage(Send.class, this::onSend)
                 .onMessage(Schedule.class, this::onSchedule)
+                .onMessage(CancelSchedule.class, this::onCancelSchedule)
                 .build();
     }
 
@@ -119,6 +127,11 @@ public final class SensorManager extends AbstractBehavior<SensorManager.SensorMa
         return this;
     }
 
+    private Behavior<SensorManagerCommand> onCancelSchedule(CancelSchedule cancelSchedule) {
+        cancelScheduledTask(cancelSchedule.key);
+        return this;
+    }
+
     /*
         Data inside the sensor manager
      */
@@ -143,5 +156,9 @@ public final class SensorManager extends AbstractBehavior<SensorManager.SensorMa
                 Option.apply(calendar),
                 timezone
         );
+    }
+
+    private void cancelScheduledTask(String key) {
+        ActorManager.getScheduler().cancelJob(key);
     }
 }
