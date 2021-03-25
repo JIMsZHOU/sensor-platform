@@ -4,6 +4,7 @@ import akka.actor.typed.Behavior;
 import akka.actor.typed.javadsl.ActorContext;
 import akka.actor.typed.javadsl.Behaviors;
 import akka.actor.typed.javadsl.Receive;
+import edu.northeastern.base.manager.EventManager;
 import edu.northeastern.base.manager.MailBoxManager;
 
 /**
@@ -28,7 +29,7 @@ public class HealthChecker extends AbstractSensor {
 
     private Behavior<SensorCommand> onHealthCheck(HealthCheck healthCheck) {
         MailBoxManager.getInstance().checkAllMailBoxes();
-
+        EventManager.getInstance().checkExpiredEvents();
         return this;
     }
 

@@ -1,6 +1,5 @@
 package edu.northeastern.process.controller;
 
-import edu.northeastern.base.manager.MailBoxManager;
 import edu.northeastern.process.serivce.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -34,8 +33,8 @@ public class UserController {
 
     @RequestMapping(value = "/user/send/{userID}-{message}", method = RequestMethod.GET)
     public String sendMessage(@PathVariable String userID, @PathVariable String message) {
-        userService.sendMessage(userID, message);
-        return "Send message to user: " + userID + "with message: " + message;
+        String res = userService.sendMessage(userID, message);
+        return res;
     }
 
     @RequestMapping(value = "/user/getMails-{userID}/", method = RequestMethod.GET)

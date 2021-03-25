@@ -14,6 +14,8 @@ import edu.northeastern.base.manager.PartitionManager;
 import edu.northeastern.base.manager.SensorManager;
 import edu.northeastern.base.sensor.AbstractSensor;
 import edu.northeastern.base.sensor.SensorCommand;
+import edu.northeastern.process.serivce.EventService;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Map;
 

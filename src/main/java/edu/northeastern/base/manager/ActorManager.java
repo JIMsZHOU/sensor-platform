@@ -1,9 +1,6 @@
 package edu.northeastern.base.manager;
 
-import akka.actor.typed.ActorSystem;
-import akka.actor.typed.ActorRef;
-import akka.actor.typed.Behavior;
-import akka.actor.typed.Terminated;
+import akka.actor.typed.*;
 import akka.actor.typed.javadsl.ActorContext;
 import akka.actor.typed.javadsl.Adapter;
 import akka.actor.typed.javadsl.Behaviors;
@@ -61,16 +58,17 @@ public final class ActorManager {
     }
 
 
-    public static Behavior<Void> create() {
-        return Behaviors.setup(
-                context -> {
-                    init(context);
-
-                    return Behaviors.receive(Void.class)
-                            .onSignal(Terminated.class, sig -> Behaviors.stopped())
-                            .build();
-                }
-        );
+    public static Behavior<Object> create() {
+        return Behaviors.supervise(
+                Behaviors.setup(
+                        context -> {
+                            init(context);
+                            return Behaviors.receive(Object.class)
+                                    .onSignal(Terminated.class, sig -> Behaviors.stopped())
+                                    .build();
+                        }
+                )
+        ).onFailure(SupervisorStrategy.resume());
     }
 
 
@@ -81,7 +79,7 @@ public final class ActorManager {
      * 3. start scheduled mail box checker
      * 4. start needed partitions
      */
-    private static void init(ActorContext<Void> context) {
+    private static void init(ActorContext<Object> context) {
         SYSTEM = context.getSystem();
         SCHEDULER = QuartzSchedulerExtension.get(SYSTEM.classicSystem());
         SENSORMANAGER = context.spawn(SensorManager.create(), "sensorManager");
