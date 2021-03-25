@@ -1,5 +1,6 @@
 package edu.northeastern.base.manager;
 
+import akka.actor.typed.ActorRef;
 import edu.northeastern.base.event.Event;
 
 import java.util.Date;
@@ -31,6 +32,10 @@ public class EventManager {
             Event e = events.get(key);
             if (e.getExpireTime().before(cur)) {
                 removeEvent(e.getKey());
+                String eventPartitionName = ActorManager.eventPartitionName;
+                ActorRef<SensorManager.SensorManagerCommand> eventPartition = PartitionManager.getInstance().getPartition(eventPartitionName);
+                eventPartition.tell(new SensorManager.Stop(e.getKey()));
+                eventPartition.tell(new SensorManager.CancelSchedule(e.getKey()+ "-schedule"));
                 ActorManager.getAlertSensor().tell(new AlertSensor.Alert(
                         "Event: "+ e.getKey() +" is expired"
                 ));

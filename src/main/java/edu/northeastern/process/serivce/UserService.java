@@ -10,6 +10,7 @@ import edu.northeastern.process.sensors.UserSensor;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -44,12 +45,18 @@ public class UserService {
         return users.stream().map(User::getID).collect(Collectors.toList());
     }
 
-    public void sendMessage(String userID, String message) {
-        userPartition.tell(new SensorManager.Send(userID, new UserSensor.Mail(message)));
+    public String sendMessage(String userID, String message) {
+        if (MailBoxManager.getInstance().getUser(userID) == null) {
+            return "No user with id: " + userID;
+        } else {
+            userPartition.tell(new SensorManager.Send(userID, new UserSensor.Mail(message)));
+            return "Send message to [user: "+userID+"] with [message: "+message+"]";
+        }
     }
 
     public List<String> getMails(String userID) {
-        return MailBoxManager.getInstance().getMails(userID);
+        List<String> res = MailBoxManager.getInstance().getMails(userID);
+        return res == null ? Collections.emptyList() : res;
     }
 
     public void readMails(String userID) {

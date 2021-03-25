@@ -2,8 +2,6 @@ package edu.northeastern;
 
 import akka.actor.typed.ActorSystem;
 import edu.northeastern.base.manager.ActorManager;
-import edu.northeastern.base.manager.SensorManager;
-import edu.northeastern.process.sensors.SampleSensor;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -14,11 +12,12 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class ProgramEntry {
 
   public static void main(String[] args) throws InterruptedException {
-    ActorSystem<Void> system = ActorSystem.create(ActorManager.create(), "actorManager");
+    ActorSystem<Object> system = ActorSystem.create(ActorManager.create(), "actorManager");
     while (!ActorManager.isReady()) {
       Thread.sleep(1000);
     }
     SpringApplication.run(ProgramEntry.class, args);
+    System.out.println("Finished...");
 //    while (!ActorManager.isReady()) {
 //      Thread.sleep(1000);
 //    }
